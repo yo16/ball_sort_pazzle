@@ -58,7 +58,19 @@ function show_boxes(){
         .attr("stroke-width", "20px")
         .attr("stroke-linecap", "round")
         .attr("stroke-linejoin", "round")
-        .attr("fill", "none")
+        .attr("fill", "#fff")
+        .attr("fill-opacity", "0.0")    // クリックを捉えるために透過100%のfillをかけている
+        .on("click", function(d, i){
+            // boxにある最後のボールのindexを取得
+            let cur_ball_index = boxes[i].length-1;
+            let target = "circle[box_index=\""+i+"\"][ball_index=\""+cur_ball_index+"\"]";
+            let cur_ball = d3.selectAll(target)
+                .transition()
+                .duration(300)
+                .attr("transform", "translate(0, -200)")
+            ;
+            console.log("aa");
+        })
     ;
 
     // ボール
@@ -67,7 +79,10 @@ function show_boxes(){
         let box_px = get_x_pos(i);
         let box_py = get_y_pos(i);
 
-        let svg_g_ball = svg.append("g");
+        let svg_g_ball = svg.append("g")
+            .attr("class", "balls")
+            .attr("box_index", i)
+        ;
         let svg_ball = svg_g_ball.selectAll(".ball")
             .data(box)
             .enter()
@@ -82,8 +97,12 @@ function show_boxes(){
             .attr("fill", function(d){
                 return COLORS10[d-1]
             })
+            .attr("box_index", i)
+            .attr("ball_index", function(d,j){return j})
         ;
     };
+    let svgzG = svgz_element(svg_g_box.node());
+    svgzG.toTop();
 }
 // boxのiによる位置を返す
 function get_x_pos(box_i){
