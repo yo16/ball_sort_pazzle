@@ -165,6 +165,19 @@ function move_ball(box_i){
             .attr("cy", get_hover_pos(_box_i))
         ;
     }
+    // 選択を戻す
+    function release_ball(){
+        // ボールを戻す、ついでに選択状態を解除する
+        d3.selectAll(".selected_ball")
+            .classed('selected_ball', false)
+            .transition()
+            .duration(200)
+            .attr("cy", function(d){
+                console.log(d);
+                return get_ball_y_pos(d["box_i"], d["pos"]);
+            })
+        ;
+    }
 
     // 選択されているball
     let selected_ball = d3.select(".selected_ball");
@@ -172,6 +185,7 @@ function move_ball(box_i){
     // 選択されているか、いないか
     if ( !selected_ball.empty() ){
         // 選択されている
+        release_ball();
         /*
         let target_clicked_ball = get_target_ball(takeout_ball["box_index"]);
         // クリックしたboxが自分自身かどうか
