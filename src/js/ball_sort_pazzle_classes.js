@@ -8,6 +8,8 @@ class Game{
     #init_boxes_value = [];
     // Boxインスタンス
     #boxes = [];
+    // boxのindexの最後
+    #max_box_index = -1;
     // ballのindexの最後
     #max_ball_index = -1;
 
@@ -40,6 +42,7 @@ class Game{
 
     // 移動
     static move_speed = 100;
+    static move_speed_fast = 15;
 
     // コンストラクタ
     constructor(_init_boxes_value){
@@ -69,7 +72,7 @@ class Game{
         let ret_balls = [];
         //for(let i=0; i<this.#boxes.length; i++){
         this.#boxes.forEach(box=>{
-            ret_balls = ret_balls.concat(box.get_balls());
+            ret_balls = ret_balls.concat(box.balls);
         })
         return ret_balls;
     }
@@ -78,17 +81,31 @@ class Game{
         return this.#boxes[i];
     }
 
+    regist_box_index(){
+        return ++this.#max_box_index;
+    }
     regist_ball_index(){
-        return this.#max_ball_index++;
+        return ++this.#max_ball_index;
+    }
+
+    // インスタンス内でballを移動する
+    move_ball(source_box_index, dest_box_index){
+        let ball = this.#boxes[source_box_index].balls.pop();
+        this.#boxes[dest_box_index].balls.push(ball);
     }
 }
 
 // Box
 class Box{
+    #box_index = -1;
+    get box_index(){return this.#box_index;}
     #game_ins = null;
     get game_ins(){return this.#game_ins;}
     #balls = [];
+    get balls(){return this.#balls;}
+    get balls_len(){return this.#balls.length;}
     #box_capacity = -1;
+    get box_capacity(){return this.#balls.length;}
     
     #pos_x = 0;
     get pos_x(){return this.#pos_x;}
@@ -97,11 +114,16 @@ class Box{
 
     // 一番上のballを返す
     get top_ball(){
+        if (this.#balls.length==0){
+            // １つも入っていない
+            return null;
+        }
         return this.#balls[this.#balls.length-1];
     }
 
     // コンストラクタ
     constructor(game_ins, balls, pos_x, pos_y, capa){
+        this.#box_index = game_ins.regist_box_index();
         this.#game_ins = game_ins;
         this.#balls = [];
         this.#pos_x = pos_x;
@@ -115,11 +137,6 @@ class Box{
             // ballインスタンスを生成
             this.#balls.push(new Ball(this, balls[i], ball_pos_x, ball_pos_y));
         }
-    }
-
-    // キャパシティ
-    get box_capacity(){
-        return this.#balls.length;
     }
 
     // points
@@ -143,10 +160,6 @@ class Box{
         return points.join(',');
     }
 
-    get_balls(){
-        return this.#balls;
-    }
-
     get_ball_pos_x(){
         return this.#pos_x + Game.box_padding + Game.ball_d/2;
     }
@@ -159,14 +172,36 @@ class Box{
             - Game.ball_d/2
         );
     }
+
+    // ball_noを受け入れることができるか
+    is_acceptable_ball(ball_no){
+        // 空ならOK
+        if (this.#balls.length==0){
+            return true;
+        }
+
+        // キャパオーバーの場合はNG
+        if (this.#box_capacity <= this.#balls.length){
+            return false;
+        }
+
+        // トップの色が違っていたらNG
+        if (this.top_ball.ball_no != ball_no){
+            return false;
+        }
+
+        return true;
+    }
 }
 
 // Ball
 class Ball{
     #box_ins = null;
+    get box_ins(){return this.#box_ins;}
 
     // ballの値
     #ball_no = -1;
+    get ball_no(){return this.#ball_no;}
 
     // ballの通し番号
     #ball_index = -1;
@@ -198,9 +233,5 @@ class Ball{
 
     get ball_index(){
         return this.#ball_index;
-    }
-
-    get box_ins(){
-        return this.#box_ins;
     }
 }
