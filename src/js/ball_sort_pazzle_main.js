@@ -32,6 +32,7 @@ function init_show_boxes(){
         .attr("cx", function(d){return d.cx;})
         .attr("cy", function(d){return d.cy;})
         .attr("fill", function(d){return d.color;})
+        .attr("ball_idx", function(d){return d.ball_index;})
     ;
 
     // box
@@ -48,11 +49,44 @@ function init_show_boxes(){
         .attr("stroke-linejoin", Game.box_linejoin)
         .attr("fill", Game.box_fill)
         .attr("fill-opacity", Game.box_fill_opacity)    // クリックを捉えるために透過100%のfillをかけている
-        .on("click", function(d, i){
-            move_ball(i);
+        .on("click", function(d){
+            select_ball(d);
         })
     ;
 }
+
+// ボールを取り出す
+function select_ball(box_ins){
+    let selected_ball = d3.select(".selected_ball");
+    if (selected_ball.empty()){
+        // 選択されていない
+        let top_ball = box_ins.top_ball;
+        d3.select(".ball[ball_idx=\"" + top_ball.ball_index + "\"]")
+            .classed("selected_ball", true)
+            .transition()
+            .duration(Game.move_speed)
+            .attr("cy", box_ins.pos_y - Game.ball_hover_height)
+        ;
+    }else{
+        // 選択されている
+        // 選択解除する
+        unselect_ball(selected_ball);
+    }
+}
+// 選択解除する
+function unselect_ball(selected_ball){
+    selected_ball
+        .classed("selected_ball", false)
+        .transition()
+        .duration(Game.move_speed)
+        .attr("cy", function(ball){
+            let box_ins = ball.box_ins;
+            let box_top_index = box_ins.get_balls().length - 1;
+            return box_ins.get_ball_pos_y(box_top_index);
+        })
+    ;
+}
+
 
 initialize();
 init_show_boxes();

@@ -8,6 +8,8 @@ class Game{
     #init_boxes_value = [];
     // Boxインスタンス
     #boxes = [];
+    // ballのindexの最後
+    #max_ball_index = -1;
 
     // 表示系の情報
     static box_stroke_color = "#555";
@@ -36,6 +38,9 @@ class Game{
         "#9467bd","#d62728","#2ca02c","#ff7f0e","#1f77b4",
     ];
 
+    // 移動
+    static move_speed = 100;
+
     // コンストラクタ
     constructor(_init_boxes_value){
         // 初期配置と今の状態を記録、capacityも取得
@@ -52,7 +57,7 @@ class Game{
             let box_y = Game.box_top + Math.floor(i/Game.box_wrap_num) * Game.box_distance_y;
 
             // Boxインスタンスを生成
-            this.#boxes.push(new Box([...line], box_x, box_y, _init_boxes_value[0].length));
+            this.#boxes.push(new Box(this, [...line], box_x, box_y, _init_boxes_value[0].length));
         }
     }
 
@@ -68,34 +73,48 @@ class Game{
         })
         return ret_balls;
     }
+
+    get_box(box_i){
+        return this.#boxes[i];
+    }
+
+    regist_ball_index(){
+        return this.#max_ball_index++;
+    }
 }
 
 // Box
 class Box{
+    #game_ins = null;
+    get game_ins(){return this.#game_ins;}
     #balls = [];
     #box_capacity = -1;
     
     #pos_x = 0;
+    get pos_x(){return this.#pos_x;}
     #pos_y = 0;
+    get pos_y(){return this.#pos_y;}
+
+    // 一番上のballを返す
+    get top_ball(){
+        return this.#balls[this.#balls.length-1];
+    }
 
     // コンストラクタ
-    constructor(balls, pos_x, pos_y, capa){
+    constructor(game_ins, balls, pos_x, pos_y, capa){
+        this.#game_ins = game_ins;
         this.#balls = [];
-        for(let i=0; i<balls.length; i++){
-            let ball_pos_x = pos_x + Game.box_padding + Game.ball_d/2;
-            let ball_pos_y = pos_y
-             + Game.ball_d * capa
-             + Game.ball_padding * (capa-1)
-             - (Game.ball_d+Game.ball_padding)*i
-             - Game.ball_d/2;
-
-            // ballインスタンスを生成
-            this.#balls.push(new Ball(balls[i], ball_pos_x, ball_pos_y));
-        }
-
         this.#pos_x = pos_x;
         this.#pos_y = pos_y;
         this.#box_capacity = capa;
+
+        for(let i=0; i<balls.length; i++){
+            let ball_pos_x = this.get_ball_pos_x();
+            let ball_pos_y = this.get_ball_pos_y(i);
+
+            // ballインスタンスを生成
+            this.#balls.push(new Ball(this, balls[i], ball_pos_x, ball_pos_y));
+        }
     }
 
     // キャパシティ
@@ -127,21 +146,41 @@ class Box{
     get_balls(){
         return this.#balls;
     }
+
+    get_ball_pos_x(){
+        return this.#pos_x + Game.box_padding + Game.ball_d/2;
+    }
+    get_ball_pos_y(ball_pos_i){
+        return (
+            this.#pos_y
+            + Game.ball_d * this.#box_capacity
+            + Game.ball_padding * (this.#box_capacity-1)
+            - (Game.ball_d+Game.ball_padding)*ball_pos_i
+            - Game.ball_d/2
+        );
+    }
 }
 
 // Ball
 class Ball{
+    #box_ins = null;
+
     // ballの値
     #ball_no = -1;
+
+    // ballの通し番号
+    #ball_index = -1;
 
     #pos_cx = 0;
     #pos_cy = 0;
 
     // コンストラクタ
-    constructor(ball_no, pos_cx, pos_cy){
+    constructor(box_ins, ball_no, pos_cx, pos_cy){
+        this.#box_ins = box_ins;
         this.#ball_no = ball_no;
         this.#pos_cx = pos_cx;
         this.#pos_cy = pos_cy;
+        this.#ball_index = this.#box_ins.game_ins.regist_ball_index();
     }
 
     // 中心の座標を返す
@@ -155,5 +194,13 @@ class Ball{
     // 色
     get color(){
         return Game.ball_colors10[this.#ball_no];
+    }
+
+    get ball_index(){
+        return this.#ball_index;
+    }
+
+    get box_ins(){
+        return this.#box_ins;
     }
 }
