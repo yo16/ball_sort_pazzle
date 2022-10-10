@@ -30,16 +30,16 @@ class Game{
     static box_fill_opacity = "0.0";    // クリックを捉えるために透過100%
 
     // Box間の距離、初期値
-    static box_left = 100;
+    static box_left = 50;
     static box_top = 400;
     static box_distance_x = 250;    // 左端での距離
-    static box_distance_y = 500;    // 上端での距離
+    static box_distance_y = 200;    // boxの下端から下のboxまでの距離
     static box_wrap_num = 4;        // 折り返しのbox個数
 
     // Box内の隙間
     static box_padding = 20;
     static ball_padding = 8;
-    static ball_hover_height = 200;
+    static ball_hover_height = 100;
 
     // Ballの情報
     static ball_d = 100;
@@ -49,11 +49,11 @@ class Game{
     ];
 
     // 移動
-    static move_speed = 100;
+    static move_speed = 50;
     static move_speed_fast = 15;
 
     // コンストラクタ
-    constructor(_init_boxes_value){
+    constructor(_init_boxes_value, color_num, depth){
         // 初期配置と今の状態を記録、capacityも取得
         this.#init_boxes_value = [];
         this.#boxes = [];
@@ -64,11 +64,12 @@ class Game{
             this.#init_boxes_value.push([...line]);
 
             // Boxの位置を計算
+            let box_height = Game.ball_d*depth + Game.ball_padding*(depth-1) + Game.box_padding;
             let box_x = Game.box_left + (i%Game.box_wrap_num)*Game.box_distance_x;
-            let box_y = Game.box_top + Math.floor(i/Game.box_wrap_num) * Game.box_distance_y;
+            let box_y = Game.box_top + Math.floor(i/Game.box_wrap_num) * (box_height + Game.box_distance_y);
 
             // Boxインスタンスを生成
-            this.#boxes.push(new Box(this, [...line], box_x, box_y, _init_boxes_value[0].length));
+            this.#boxes.push(new Box(this, [...line], box_x, box_y, depth));
         }
     }
 
@@ -88,6 +89,20 @@ class Game{
     get_box(box_i){
         return this.#boxes[i];
     }
+    get_ball(ball_i){
+        let ret_ball_i = -1;
+        let balls = this.get_balls();
+        for(let i=0; i<balls.length; i++){
+            let ball = balls[i];
+            if (ball.ball_index==ball_i){
+                ret_ball_i = i;
+                break;
+            }
+        }
+        console.assert(ret_ball_i>=0, "ballが見つからない(index:"+ball_i+")");
+
+        return balls[ret_ball_i];
+    }
 
     regist_box_index(){
         return ++this.#max_box_index;
@@ -98,8 +113,8 @@ class Game{
 
     // インスタンス内でballを移動する
     move_ball(source_box_index, dest_box_index){
-        let ball = this.#boxes[source_box_index].balls.pop();
-        this.#boxes[dest_box_index].balls.push(ball);
+        let ball = this.#boxes[source_box_index].pop_ball();
+        this.#boxes[dest_box_index].push_ball(ball);
     }
 }
 
@@ -182,23 +197,54 @@ class Box{
     }
 
     // ball_noを受け入れることができるか
-    is_acceptable_ball(ball_no){
-        // 空ならOK
-        if (this.#balls.length==0){
-            return true;
-        }
+    is_acceptable_ball(selected_ball, game_mode){
+        if (game_mode==1){  // playモード
+            let ball_no = selected_ball.ball_no;
 
-        // キャパオーバーの場合はNG
-        if (this.#box_capacity <= this.#balls.length){
-            return false;
-        }
+            // 空ならOK
+            if (this.#balls.length==0){
+                return true;
+            }
 
-        // トップの色が違っていたらNG
-        if (this.top_ball.ball_no != ball_no){
-            return false;
-        }
+            // キャパオーバーの場合はNG
+            if (this.#box_capacity <= this.#balls.length){
+                return false;
+            }
 
+            // トップの色が違っていたらNG
+            if (this.top_ball.ball_no != ball_no){
+                return false;
+            }
+
+        }else{              // createモード
+            // 選択しているボールの下の色を取得
+            let source_box = selected_ball.box_ins;
+            if (source_box.balls_len>1){    // 下がある
+                let lower_ball = source_box.balls[source_box.balls_len-2];
+                if (selected_ball.ball_no != lower_ball.ball_no){
+                    // １つ下のボールと色が違う場合はNG
+                    return false;
+                }
+            }
+
+            // キャパオーバーの場合はNG
+            if (this.#box_capacity <= this.#balls.length){
+                return false;
+            }
+        }
         return true;
+    }
+
+    // トップのボールを取り出す
+    pop_ball(){
+        let ball = this.#balls.pop();
+        ball.box_ins = null;
+        return ball;
+    }
+    // トップへボールを設定する
+    push_ball(ball){
+        ball.box_ins = this;
+        this.#balls.push(ball);
     }
 }
 
@@ -206,6 +252,7 @@ class Box{
 class Ball{
     #box_ins = null;
     get box_ins(){return this.#box_ins;}
+    set box_ins(new_box_ins){this.#box_ins = new_box_ins;}
 
     // ballの値
     #ball_no = -1;
@@ -213,6 +260,7 @@ class Ball{
 
     // ballの通し番号
     #ball_index = -1;
+    get ball_index(){return this.#ball_index;}
 
     #pos_cx = 0;
     #pos_cy = 0;

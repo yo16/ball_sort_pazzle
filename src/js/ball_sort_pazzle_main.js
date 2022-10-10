@@ -1,14 +1,9 @@
-// テストデータ(左が底)
-var boxes = [
-    [0,0,1,2],
-    [1,0,0,2],
-    [1,2,1,2],
-    []
-];
-boxes = create_question(3, 4);
+var color_num = 4;
+var depth = 5;
+boxes = create_question(color_num, depth);
 
 // データからゲームを作成
-var game = new Game(boxes);
+var game = new Game(boxes, color_num, depth);
 
 function initialize(){
     // body
@@ -194,7 +189,11 @@ function select_box(box_ins){
         }else{
             // 元のboxとは別のbox
             // 移動可能か
-            if (box_ins.is_acceptable_ball(selected_ball.attr("ball_no"))){
+            if (box_ins.is_acceptable_ball(
+                    game.get_ball(selected_ball.attr("ball_idx")),
+                    game.current_game_mode
+                )
+            ){
                 // 移動可能
                 game.move_ball(selected_ball.attr("box_idx"), box_ins.box_index);
                 selected_ball
@@ -255,7 +254,6 @@ function unselect_ball(selected_ball){
         })
     ;
 }
-
 
 initialize();
 init_show_boxes();
