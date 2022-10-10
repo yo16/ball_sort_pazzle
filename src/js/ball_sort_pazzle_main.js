@@ -1,9 +1,3 @@
-var color_num = 4;
-var depth = 5;
-boxes = create_question(color_num, depth);
-
-// データからゲームを作成
-var game = new Game(boxes, color_num, depth);
 
 function initialize(){
     // body
@@ -15,114 +9,8 @@ function initialize(){
     ;
 
     // モードボタン
-    {
-        let svg_g_mode = svg.append("g");
+    create_mode_button();
 
-        let left = 10;
-        let top = 10;
-        let width = 140;
-        let height = 40;
-
-        // 背景
-        let box_bk1_str = 
-            "M " + left + " " + top +
-            " L " + left + " " + (top+height) +
-            " L " + (left+width/2) + " " + (top+height) + 
-            " L " + (left+width/2) + " " + top +
-            " Z";
-        svg_g_mode.append("path")
-            .attr("d", box_bk1_str)
-            .attr("fill", "#ccc")
-            .attr("stroke", "#ccc")
-            .attr("stroke-width", "1")
-        ;
-        let box_bk2_str = 
-            "M " + (left+width/2) + " " + top +
-            " L " + (left+width/2) + " " + (top+height) +
-            " L " + (left+width) + " " + (top+height) + 
-            " L " + (left+width) + " " + top +
-            " Z";
-        svg_g_mode.append("path")
-            .attr("d", box_bk2_str)
-            .attr("fill", "#c99")
-            .attr("stroke", "#c99")
-            .attr("stroke-width", "1")
-        ;
-
-        // テキスト
-        let text1_pos_x = left+20;
-        let text1_pos_y = top+25;
-        svg_g_mode.append("text")
-            .attr("x", text1_pos_x)
-            .attr("y", text1_pos_y)
-            .attr("font-size", 14)
-            .attr("stroke", "#666")
-            .text("Play")
-        ;
-        let text2_pos_x = left+width/2+10;
-        let text2_pos_y = top+25;
-        svg_g_mode.append("text")
-            .attr("x", text2_pos_x)
-            .attr("y", text2_pos_y)
-            .attr("font-size", 14)
-            .attr("stroke", "#666")
-            .text("Create")
-        ;
-
-        // スライダー
-        function get_slider_d_str(mode){
-            // mode: [0:create, 1:play]
-            let slider_left = left + 10 +mode*(width/2 - 10);
-            let slider_top = top + 10;
-            let slider_width = width/2 - 10;
-            let slider_height = height - 20;
-            let box_slider_d_str = 
-                "M " + slider_left + " " + slider_top +
-                " L " + slider_left + " " + (slider_top+slider_height) +
-                " L " + (slider_left+slider_width) + " " + (slider_top+slider_height) + 
-                " L " + (slider_left+slider_width) + " " + slider_top +
-                " Z";
-            return box_slider_d_str;
-        }
-        svg_g_mode.append("path")
-            .classed("slider", true)
-            .attr("d", get_slider_d_str(game.current_game_mode))
-            .attr("fill", "#999")
-            .attr("stroke", "#999")
-            .attr("stroke-width", "10")
-            .attr("stroke-linecap", "round")
-            .attr("stroke-linejoin", "round")
-            .attr("mode", game.current_mode)
-        ;
-
-        // path
-        // 枠とクリック対象
-        let box_d_str = 
-            "M " + left + " " + top +
-            " L " + left + " " + (top+height) +
-            " L " + (left+width) + " " + (top+height) + 
-            " L " + (left+width) + " " + top +
-            " Z";
-        svg_g_mode.append("path")
-            .attr("d", box_d_str)
-            .attr("fill", "#c6c")
-            .attr("fill-opacity", "0.0")
-            .attr("stroke", "#66c")
-            .attr("stroke-width", "10")
-            .attr("stroke-linecap", "round")
-            .attr("stroke-linejoin", "round")
-            .on("click",function(d){
-                let slider = d3.select(".slider");
-                let mode_new = game.switch_game_mode();
-                slider
-                    .attr("mode", mode_new)
-                    .transition()
-                    .duration(100)
-                    .attr("d", function(){return get_slider_d_str(mode_new);})
-                ;
-            })
-        ;
-    }
 }
 
 // 描画
@@ -254,6 +142,126 @@ function unselect_ball(selected_ball){
         })
     ;
 }
+
+// モードボタン
+function create_mode_button(){
+    let svg_g_mode = svg.append("g");
+
+    let left = 830;
+    let top = 10;
+    let width = 140;
+    let height = 40;
+
+    // 背景
+    let box_bk1_str = 
+        "M " + left + " " + top +
+        " L " + left + " " + (top+height) +
+        " L " + (left+width/2) + " " + (top+height) + 
+        " L " + (left+width/2) + " " + top +
+        " Z";
+    svg_g_mode.append("path")
+        .attr("d", box_bk1_str)
+        .attr("fill", "#ccc")
+        .attr("stroke", "#ccc")
+        .attr("stroke-width", "1")
+    ;
+    let box_bk2_str = 
+        "M " + (left+width/2) + " " + top +
+        " L " + (left+width/2) + " " + (top+height) +
+        " L " + (left+width) + " " + (top+height) + 
+        " L " + (left+width) + " " + top +
+        " Z";
+    svg_g_mode.append("path")
+        .attr("d", box_bk2_str)
+        .attr("fill", "#c99")
+        .attr("stroke", "#c99")
+        .attr("stroke-width", "1")
+    ;
+
+    // テキスト
+    let text1_pos_x = left+20;
+    let text1_pos_y = top+25;
+    svg_g_mode.append("text")
+        .attr("x", text1_pos_x)
+        .attr("y", text1_pos_y)
+        .attr("font-size", 14)
+        .attr("stroke", "#666")
+        .text("Play")
+    ;
+    let text2_pos_x = left+width/2+10;
+    let text2_pos_y = top+25;
+    svg_g_mode.append("text")
+        .attr("x", text2_pos_x)
+        .attr("y", text2_pos_y)
+        .attr("font-size", 14)
+        .attr("stroke", "#666")
+        .text("Create")
+    ;
+
+    // スライダー
+    function get_slider_d_str(mode){
+        // mode: [0:create, 1:play]
+        let slider_left = left + 10 +mode*(width/2 - 10);
+        let slider_top = top + 10;
+        let slider_width = width/2 - 10;
+        let slider_height = height - 20;
+        let box_slider_d_str = 
+            "M " + slider_left + " " + slider_top +
+            " L " + slider_left + " " + (slider_top+slider_height) +
+            " L " + (slider_left+slider_width) + " " + (slider_top+slider_height) + 
+            " L " + (slider_left+slider_width) + " " + slider_top +
+            " Z";
+        return box_slider_d_str;
+    }
+    svg_g_mode.append("path")
+        .classed("slider", true)
+        .attr("d", get_slider_d_str(game.current_game_mode))
+        .attr("fill", "#999")
+        .attr("stroke", "#999")
+        .attr("stroke-width", "10")
+        .attr("stroke-linecap", "round")
+        .attr("stroke-linejoin", "round")
+        .attr("mode", game.current_mode)
+    ;
+
+    // path
+    // 枠とクリック対象
+    let box_d_str = 
+        "M " + left + " " + top +
+        " L " + left + " " + (top+height) +
+        " L " + (left+width) + " " + (top+height) + 
+        " L " + (left+width) + " " + top +
+        " Z";
+    svg_g_mode.append("path")
+        .attr("d", box_d_str)
+        .attr("fill", "#c6c")
+        .attr("fill-opacity", "0.0")
+        .attr("stroke", "#66c")
+        .attr("stroke-width", "10")
+        .attr("stroke-linecap", "round")
+        .attr("stroke-linejoin", "round")
+        .on("click",function(d){
+            let slider = d3.select(".slider");
+            let mode_new = game.switch_game_mode();
+            slider
+                .attr("mode", mode_new)
+                .transition()
+                .duration(100)
+                .attr("d", function(){return get_slider_d_str(mode_new);})
+            ;
+        })
+    ;
+}
+
+
+
+var color_num = 8;
+var depth = 4;
+var empty_box_num = 2;
+boxes = create_question(color_num, depth, empty_box_num);
+
+// データからゲームを作成
+var game = new Game(boxes, color_num, depth);
 
 initialize();
 init_show_boxes();

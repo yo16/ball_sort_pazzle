@@ -1,11 +1,7 @@
 // 色数と深さから問題を作る
-function create_question(color_num, depth){
+function create_question(color_num, depth, empty_box_num){
     // 問題
     let q = [];
-
-    // 空の箱の数
-    // とりあえず固定しておくが、あとで自動的に増やす仕組みにする
-    let empty_box_num = 2;
 
     // 色を詰める
     for(let color=0; color<color_num; color++){
@@ -22,14 +18,32 @@ function create_question(color_num, depth){
     }
 
     // 移動
-    make_question(q, depth);
+    let move_count = 0;
+    let target_move_count = color_num*empty_box_num*3;
+    let loop_count = 0;
+    while( move_count<target_move_count){
+        loop_count++;
+        q2 = copyMatrix(q);
+        move_count = make_question(q2, depth);
+        //console.log(move_count);
 
-    return q;
+        // 問題を作れなかったら目標値を下げる
+        if( loop_count%20==0 ){target_move_count--;}
+    }
+
+    return q2;
+}
+function copyMatrix(base) {
+    const result = [];
+    for (const line of base) {
+      result.push([...line]);
+    }
+    return result;
 }
 
 function make_question(q, depth){
     let move_count = 0;
-    let move_count_goal = 100;    // この数分動かす
+    let move_count_goal = 1000;    // この数分動かす
 
     let try_count = 0;
     let try_max = 10000;
@@ -71,7 +85,14 @@ function make_question(q, depth){
                 continue;
             }
         }
-
+        // toのboxが下２個同じ色だったらNG
+        if (box2_len>=2){
+            let top1 = q[box2][box2_len-1];
+            let top2 = q[box2][box2_len-2];
+            if (top1==top2){
+                continue;
+            }
+        }
 
         // 移動
         let col = q[box1].pop();
@@ -79,6 +100,8 @@ function make_question(q, depth){
 
         move_count++;
     }
+
+    return move_count;
 }
 
 function get_random_int(max){
