@@ -347,21 +347,21 @@ function create_q_menu(){
     // ボタン
     {
         svg_g_q.append("rect")
-            .attr("x", 500)
+            .attr("x", 520)
             .attr("y", 40)
             .attr("width", 250)
             .attr("height", 160)
             .attr("fill", "#cc3")
         ;
         svg_g_q.append("text")
-            .attr("x", 560)
+            .attr("x", 580)
             .attr("y", 140)
             .attr("font-size", font_size)
             .attr("fill", "#333")
             .text("New")
         ;
         svg_g_q.append("path")
-            .attr("d", "M 500 40 L 500 200 L 750 200 L 750 40 Z")
+            .attr("d", "M 520 40 L 520 200 L 770 200 L 770 40 Z")
             .attr("stroke", "#993")
             .attr("stroke-width", "30")
             .attr("fill", "#f00")
@@ -440,7 +440,7 @@ function redraw_q_menu(){
         svg_g_q.selectAll("path.color_button_down")
             .data([color_num])
             .classed("color_button_down", true)
-            .attr("d", "M 360 "+color_y+" L 420 "+color_y+" L 390 "+color_y_text+" Z")
+            .attr("d", "M 400 "+color_y+" L 460 "+color_y+" L 430 "+color_y_text+" Z")
             .attr("stroke", function(d){
                 if (min_color<d){
                     return "#99f";
@@ -514,7 +514,7 @@ function redraw_q_menu(){
         svg_g_q.selectAll("path.depth_button_down")
             .data([depth])
             .classed("depth_button_down", true)
-            .attr("d", "M 360 "+depth_y+" L 420 "+depth_y+" L 390 "+depth_y_text+" Z")
+            .attr("d", "M 400 "+depth_y+" L 460 "+depth_y+" L 430 "+depth_y_text+" Z")
             .attr("stroke", function(d){
                 if (min_depth<d){
                     return "#99f";
@@ -587,7 +587,7 @@ function redraw_q_menu(){
         svg_g_q.selectAll("path.empty_box_button_down")
             .data([empty_box_num])
             .classed("empty_box_button_down", true)
-            .attr("d", "M 360 "+empty_y+" L 420 "+empty_y+" L 390 "+empty_y_text+" Z")
+            .attr("d", "M 400 "+empty_y+" L 460 "+empty_y+" L 430 "+empty_y_text+" Z")
             .attr("stroke", function(d){
                 if (min_empty<d){
                     return "#99f";
