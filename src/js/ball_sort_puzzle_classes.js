@@ -35,19 +35,19 @@ class Game{
     static box_fill_opacity = "0.0";    // クリックを捉えるために透過100%
 
     // Box間の距離、初期値
-    static box_left = 50;
+    static box_left = 70;
     static box_top = 500;
     static box_distance_x = 250;    // 左端での距離
-    static box_distance_y = 200;    // boxの下端から下のboxまでの距離
+    static box_distance_y = 180;    // boxの下端から下のboxまでの距離
     static box_wrap_num = 4;        // 折り返しのbox個数
 
     // Box内の隙間
     static box_padding = 20;
     static ball_padding = 8;
-    static ball_hover_height = 100;
+    static ball_hover_height = 90;
 
     // Ballの情報
-    static ball_d = 100;
+    static ball_d = 80;
     static ball_colors10 = [
         "#17becf","#bcbd22","#7f7f7f","#e377c2","#8c564b",
         "#9467bd","#d62728","#2ca02c","#ff7f0e","#1f77b4",
