@@ -13,6 +13,11 @@ class Game{
     // ballのindexの最後
     #max_ball_index = -1;
 
+    #game_color_num = 3;
+    get color_num(){return this.#game_color_num;}
+    #game_depth = 4;
+    get depth(){return this.#game_depth;}
+
     // ゲームモード
     #current_mode = 1;  // [0:create, 1:play]
     get current_game_mode(){return this.#current_mode;}
@@ -31,7 +36,7 @@ class Game{
 
     // Box間の距離、初期値
     static box_left = 50;
-    static box_top = 400;
+    static box_top = 500;
     static box_distance_x = 250;    // 左端での距離
     static box_distance_y = 200;    // boxの下端から下のboxまでの距離
     static box_wrap_num = 4;        // 折り返しのbox個数
@@ -54,6 +59,9 @@ class Game{
 
     // コンストラクタ
     constructor(_init_boxes_value, color_num, depth){
+        this.#game_color_num = color_num;
+        this.#game_depth = depth;
+
         // 初期配置と今の状態を記録、capacityも取得
         this.#init_boxes_value = [];
         this.#boxes = [];

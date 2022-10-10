@@ -11,12 +11,16 @@ function initialize(){
     // モードボタン
     create_mode_button();
 
+    // 問題作成メニュー
+    create_q_menu();
 }
 
 // 描画
 function init_show_boxes(){
     // ball
-    let svg_g_ball = svg.append("g");
+    let svg_g_ball = svg.append("g")
+    svg_g_ball.classed("g_balls", true);
+
     svg_g_ball.selectAll(".ball")
         .data(game.get_balls())
         .enter()
@@ -36,6 +40,8 @@ function init_show_boxes(){
 
     // box
     let svg_g_box = svg.append("g");
+    svg_g_box.classed("g_boxes", true);
+
     svg_g_box.selectAll(".box")
         .data(game.get_boxes())
         .enter()
@@ -146,6 +152,9 @@ function unselect_ball(selected_ball){
 // モードボタン
 function create_mode_button(){
     let svg_g_mode = svg.append("g");
+    svg_g_mode
+        .attr("transform", "translate(0,50)")
+    ;
 
     let left = 830;
     let top = 10;
@@ -185,7 +194,7 @@ function create_mode_button(){
         .attr("x", text1_pos_x)
         .attr("y", text1_pos_y)
         .attr("font-size", 14)
-        .attr("stroke", "#666")
+        .attr("fill", "#666")
         .text("Play")
     ;
     let text2_pos_x = left+width/2+10;
@@ -194,7 +203,7 @@ function create_mode_button(){
         .attr("x", text2_pos_x)
         .attr("y", text2_pos_y)
         .attr("font-size", 14)
-        .attr("stroke", "#666")
+        .attr("fill", "#666")
         .text("Create")
     ;
 
@@ -253,6 +262,358 @@ function create_mode_button(){
     ;
 }
 
+// 問題作成メニュー
+function create_q_menu(){
+    let svg_g_q = svg.append("g");
+    svg_g_q
+        .classed("q_menu",true)
+        .attr("transform", "translate(0,50)")
+    ;
+
+    // 背景
+    svg_g_q.append("rect")
+        .attr("x", 10)
+        .attr("y", 10)
+        .attr("width", 800)
+        .attr("height", 230)
+        .attr("fill", "#666")
+    ;
+
+    // 固定文字列と、変更のものも要素は作っておく
+    let font_size = 60;
+    {
+        let color_y = 30;
+        let color_y_text = color_y + 40;   // textの下の位置
+        svg_g_q.append("text")
+            .classed("color_text", true)
+            .attr("x", 30)
+            .attr("y", color_y_text)
+            .attr("font-size", font_size)
+            .attr("fill", "#fff")
+            .text("Color")
+        ;
+        svg_g_q.append("text")
+            .classed("color_num", true)
+        ;
+        svg_g_q.append("path")
+            .classed("color_button_up", true)
+        ;
+        svg_g_q.append("path")
+            .classed("color_button_down", true)
+        ;
+    }
+    {
+        let depth_y = 100;
+        let depth_y_text = depth_y + 40;   // textの下の位置
+        svg_g_q.append("text")
+            .classed("depth_text", true)
+            .attr("x", 30)
+            .attr("y", depth_y_text)
+            .attr("font-size", font_size)
+            .attr("fill", "#fff")
+            .text("Depth")
+        ;
+        svg_g_q.append("text")
+            .classed("depth", true)
+        ;
+        svg_g_q.append("path")
+            .classed("depth_button_up", true)
+        ;
+        svg_g_q.append("path")
+            .classed("depth_button_down", true)
+        ;
+    }
+    {
+        let empty_y = 170;
+        let empty_y_text = empty_y + 40;   // textの下の位置
+        svg_g_q.append("text")
+            .classed("empty_text", true)
+            .attr("x", 30)
+            .attr("y", empty_y_text)
+            .attr("font-size", font_size)
+            .attr("fill", "#fff")
+            .text("Empty")
+        ;
+        svg_g_q.append("text")
+            .classed("empty_box", true)
+        ;
+        svg_g_q.append("path")
+            .classed("empty_box_button_up", true)
+        ;
+        svg_g_q.append("path")
+            .classed("empty_box_button_down", true)
+        ;
+    }
+    // ボタン
+    {
+        svg_g_q.append("rect")
+            .attr("x", 500)
+            .attr("y", 40)
+            .attr("width", 250)
+            .attr("height", 160)
+            .attr("fill", "#cc3")
+        ;
+        svg_g_q.append("text")
+            .attr("x", 560)
+            .attr("y", 140)
+            .attr("font-size", font_size)
+            .attr("fill", "#333")
+            .text("New")
+        ;
+        svg_g_q.append("path")
+            .attr("d", "M 500 40 L 500 200 L 750 200 L 750 40 Z")
+            .attr("stroke", "#993")
+            .attr("stroke-width", "30")
+            .attr("fill", "#f00")
+            .attr("fill-opacity", "0.0")
+            .attr("stroke-linecap", "round")
+            .attr("stroke-linejoin", "round")
+            .on("click", function(){
+                // 
+                boxes = create_question(color_num, depth, empty_box_num);
+                
+                // データからゲームを作成
+                game = new Game(boxes, color_num, depth);
+
+                // 要素を全部消す
+                d3.selectAll("g.g_boxes").remove();
+                d3.selectAll("g.g_balls").remove();
+                // 再描画
+                init_show_boxes();
+            })
+        ;
+    }
+
+    // 描画
+    redraw_q_menu();
+}
+
+// 再描画
+function redraw_q_menu(){
+    let svg_g_q = svg.select("g.q_menu");
+    let font_size = 60;
+    
+    // 色数
+    {
+        let color_y = 30;
+        let color_y_text = color_y + 40;   // textの下の位置
+        let max_color = 10;
+        let min_color = 3;
+        svg_g_q.selectAll("text.color_num")
+            .data([color_num])
+            .classed("color_num", true)
+            .attr("x", 280)
+            .attr("y", color_y_text)
+            .attr("text-anchor", "end")
+            .attr("font-size", font_size)
+            .attr("fill", "#fff")
+            .text(function(d){return d;})
+        ;
+        svg_g_q.selectAll("path.color_button_up")
+            .data([color_num])
+            .classed("color_button_up", true)
+            .attr("d", "M 300 "+color_y_text+" L 360 "+color_y_text+" L 330 "+color_y+" Z")
+            .attr("stroke", function(d){
+                if (d<max_color){
+                    return "#f66";
+                }
+                return "#999";
+            })
+            .attr("stroke-width", "6")
+            .attr("stroke-linecap", "round")
+            .attr("stroke-linejoin", "round")
+            .attr("fill", function(d){
+                if (d<max_color){
+                    return "#c33";
+                }
+                return "#aaa";
+
+            })
+            .on("click", function(d){
+                // 最大まで
+                if (d<max_color){
+                    color_num++;
+                }
+                redraw_q_menu();
+            })
+        ;
+        svg_g_q.selectAll("path.color_button_down")
+            .data([color_num])
+            .classed("color_button_down", true)
+            .attr("d", "M 360 "+color_y+" L 420 "+color_y+" L 390 "+color_y_text+" Z")
+            .attr("stroke", function(d){
+                if (min_color<d){
+                    return "#99f";
+                }
+                return "#999";
+            })
+            .attr("stroke-width", "6")
+            .attr("stroke-linecap", "round")
+            .attr("stroke-linejoin", "round")
+            .attr("fill", function(d){
+                if (min_color<d){
+                    return "#33c";
+                }
+                return "#aaa";
+
+            })
+            .on("click", function(d){
+                // 最小まで
+                if (min_color<d){
+                    color_num--;
+                }
+                redraw_q_menu();
+            })
+        ;
+    }
+
+    // 深さ
+    {
+        let depth_y = 100;
+        let depth_y_text = depth_y + 40;   // textの下の位置
+        let max_depth = 6;
+        let min_depth = 3;
+        svg_g_q.selectAll("text.depth")
+            .data([depth])
+            .classed("depth", true)
+            .attr("x", 280)
+            .attr("y", depth_y_text)
+            .attr("text-anchor", "end")
+            .attr("font-size", font_size)
+            .attr("fill", "#fff")
+            .text(function(d){return d;})
+        ;
+        svg_g_q.selectAll("path.depth_button_up")
+            .data([depth])
+            .classed("depth_button_up", true)
+            .attr("d", "M 300 "+depth_y_text+" L 360 "+depth_y_text+" L 330 "+depth_y+" Z")
+            .attr("stroke", function(d){
+                if (d<max_depth){
+                    return "#f66";
+                }
+                return "#999";
+            })
+            .attr("stroke-width", "6")
+            .attr("stroke-linecap", "round")
+            .attr("stroke-linejoin", "round")
+            .attr("fill", function(d){
+                if (d<max_depth){
+                    return "#c33";
+                }
+                return "#aaa";
+
+            })
+            .on("click", function(d){
+                // 最大まで
+                if (d<max_depth){
+                    depth++;
+                }
+                redraw_q_menu();
+            })
+        ;
+        svg_g_q.selectAll("path.depth_button_down")
+            .data([depth])
+            .classed("depth_button_down", true)
+            .attr("d", "M 360 "+depth_y+" L 420 "+depth_y+" L 390 "+depth_y_text+" Z")
+            .attr("stroke", function(d){
+                if (min_depth<d){
+                    return "#99f";
+                }
+                return "#999";
+            })
+            .attr("stroke-width", "6")
+            .attr("stroke-linecap", "round")
+            .attr("stroke-linejoin", "round")
+            .attr("fill", function(d){
+                if (min_depth<d){
+                    return "#33c";
+                }
+                return "#aaa";
+
+            })
+            .on("click", function(d){
+                // 最小まで
+                if (min_depth<d){
+                    depth--;
+                }
+                redraw_q_menu();
+            })
+        ;
+    }
+    // 空box
+    {
+        let empty_y = 170;
+        let empty_y_text = empty_y + 40;   // textの下の位置
+        let max_empty = 2;
+        let min_empty = 1;
+        svg_g_q.selectAll("text.empty_box")
+            .data([empty_box_num])
+            .classed("empty_box", true)
+            .attr("x", 280)
+            .attr("y", empty_y_text)
+            .attr("text-anchor", "end")
+            .attr("font-size", font_size)
+            .attr("fill", "#fff")
+            .text(function(d){return d;})
+        ;
+        svg_g_q.selectAll("path.empty_box_button_up")
+            .data([empty_box_num])
+            .classed("empty_box_button_up", true)
+            .attr("d", "M 300 "+empty_y_text+" L 360 "+empty_y_text+" L 330 "+empty_y+" Z")
+            .attr("stroke", function(d){
+                if (d<max_empty){
+                    return "#f66";
+                }
+                return "#999";
+            })
+            .attr("stroke-width", "6")
+            .attr("stroke-linecap", "round")
+            .attr("stroke-linejoin", "round")
+            .attr("fill", function(d){
+                if (d<max_empty){
+                    return "#c33";
+                }
+                return "#aaa";
+
+            })
+            .on("click", function(d){
+                // 最大まで
+                if (d<max_empty){
+                    empty_box_num++;
+                }
+                redraw_q_menu();
+            })
+        ;
+        svg_g_q.selectAll("path.empty_box_button_down")
+            .data([empty_box_num])
+            .classed("empty_box_button_down", true)
+            .attr("d", "M 360 "+empty_y+" L 420 "+empty_y+" L 390 "+empty_y_text+" Z")
+            .attr("stroke", function(d){
+                if (min_empty<d){
+                    return "#99f";
+                }
+                return "#999";
+            })
+            .attr("stroke-width", "6")
+            .attr("stroke-linecap", "round")
+            .attr("stroke-linejoin", "round")
+            .attr("fill", function(d){
+                if (min_empty<d){
+                    return "#33c";
+                }
+                return "#aaa";
+
+            })
+            .on("click", function(d){
+                // 最小まで
+                if (min_empty<d){
+                    empty_box_num--;
+                }
+                redraw_q_menu();
+            })
+        ;
+    }
+}
 
 
 var color_num = 8;
