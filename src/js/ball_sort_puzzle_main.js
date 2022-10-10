@@ -369,8 +369,24 @@ function create_q_menu(){
             .attr("stroke-linecap", "round")
             .attr("stroke-linejoin", "round")
             .on("click", function(){
-                // 
-                boxes = create_question(color_num, depth, empty_box_num);
+                // 問題を作成
+                let boxes = [];
+                if (game.current_game_mode==1){
+                    // playモード
+                    boxes = create_question(color_num, depth, empty_box_num);
+                }else{
+                    // createモード
+                    for(let i=0; i<color_num; i++){
+                        let box = [];
+                        for(let j=0; j<depth; j++){
+                            box.push(i);
+                        }
+                        boxes.push(box);
+                    }
+                    for(let i=0; i<empty_box_num; i++){
+                        boxes.push([]);
+                    }
+                }
                 
                 // データからゲームを作成
                 game = new Game(boxes, color_num, depth);
