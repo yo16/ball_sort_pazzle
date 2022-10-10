@@ -13,6 +13,14 @@ class Game{
     // ballのindexの最後
     #max_ball_index = -1;
 
+    // ゲームモード
+    #current_mode = 1;  // [0:create, 1:play]
+    get current_game_mode(){return this.#current_mode;}
+    switch_game_mode(){
+        this.#current_mode = 1 - this.#current_mode;
+        return this.#current_mode;
+    }
+
     // 表示系の情報
     static box_stroke_color = "#555";
     static box_stroke_width = "20px";
@@ -157,7 +165,7 @@ class Box{
             right, bottom,
             right, top
         ];
-        return points.join(',');
+        return points.join(",");
     }
 
     get_ball_pos_x(){
