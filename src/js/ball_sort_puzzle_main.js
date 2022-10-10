@@ -154,6 +154,7 @@ function create_mode_button(){
     let svg_g_mode = svg.append("g");
     svg_g_mode
         .attr("transform", "translate(0,50)")
+        .attr("style", "display:none")
     ;
 
     let left = 830;
